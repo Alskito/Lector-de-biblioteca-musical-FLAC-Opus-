@@ -15,31 +15,41 @@ Necesitas un compilador de C++ con soporte para C++17, y la librería TagLib ins
 
 1. Instala MSYS2
 2. Abre la terminal **MSYS2 MINGW64** (no la MSYS2 normal) y corre:
+   
 `pacman -Syu`
+
 `pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-taglib mingw-w64-x86_64-pkg-config`
 
 **Linux — Arch**
+
 `sudo pacman -S base-devel taglib`
 
 **Linux — Ubuntu/Debian**
+
 `sudo apt install g++ libtag1-dev pkg-config`
 
 **macOS** (con Homebrew)
+
 `brew install taglib pkg-config`
 
 ### Compilar
+
 Desde la carpeta del proyecto:
 
 **Linux / macOS / Windows (terminal MSYS2 MINGW64)**
+
 `g++ -std=c++17 main.cpp metadatos.cpp sorter.cpp -o lector $(pkg-config --cflags --libs taglib)`
 
 **Windows (PowerShell, con MSYS2 ya agregado al PATH)**
+
 `g++ -std=c++17 -IC:\msys64\mingw64\include main.cpp metadatos.cpp sorter.cpp -o lector.exe -LC:\msys64\mingw64\lib -ltag`
 
 ### Ejecutar
+
 `./lector "<ruta_a_tu_carpeta_de_musica>" [1-5]`
 
 (en Windows, `lector.exe` en vez de `./lector`)
+
 El segundo argumento es opcional, si lo omites, el programa te muestra un menú y te pregunta como lo quieres ordenar.
 
 ## SICT0302: Toma decisiones
