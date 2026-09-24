@@ -1,5 +1,6 @@
 # Lector de biblioteca musical (FLAC/Opus)
 El programa lee los metadatos de tu biblioteca de música en FLAC y Opus usando TagLib, y permite ordenarla por título, artista, álbum, año o número de pista.
+
 Justo ahora, este avance consiste en recorrer la carpeta seleccionada en búsqueda de archivos FLAC u OPUS. El programa lee los metadatos con TagLib y los guarda en un objeto llamado song, el cual se agrega a un vector. El programa repite este proceso con todos los archivos que encuentre y, después, los ordena usando Insertion Sort dependiendo del criterio que hayas elegido.
 Por ahora, esa era la idea principal de este avance. Sinceramente, no estoy seguro de qué quiero hacer en un futuro; todo dependerá de qué requiera agregar en los próximos avances. Sin embargo, es muy probable que termine haciendo un reproductor de música. No tiene mucho que dejé los servicios de streaming y ahora utilizo una aplicación llamada MusicBee, la cual adoro, pero siento que es demasiado básica, por lo que probablemente termine creando un reproductor de música para mi uso personal.
 
