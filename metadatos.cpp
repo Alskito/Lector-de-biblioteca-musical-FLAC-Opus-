@@ -54,7 +54,7 @@ Song leerMetadatos(const fs::path& archivo) {
 std::vector<Song> escanearCarpeta(const fs::path& carpeta) {
     std::vector<Song> canciones;
     for (const auto& entry : fs::recursive_directory_iterator(carpeta)) {
-        if (entry.is_regular_file() && esFormatoSoportado(entry.path())) {
+        if (entry.is_regular_file() && FormatoSoportado(entry.path())) {
             canciones.push_back(leerMetadatos(entry.path()));
         }
     }
