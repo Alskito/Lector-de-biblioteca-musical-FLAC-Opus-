@@ -57,8 +57,26 @@ El segundo argumento es opcional, si lo omites, el programa te muestra un menú 
 
 ### Selecciona un algoritmo de ordenamiento adecuado al problema
 
-Mi biblioteca de música cuenta con aproximadamente 1100 canciones en formatos FLAC u OPUS. Debido a la cantidad de archivos, decidí usar Insertion Sort, el cual tiene una complejidad promedio de $O(n^2)$, aunque en el mejor de los casos es $O(n)$. Decidí usar este algoritmo por una sencilla razón: me pareció el más eficiente entre los de menor complejidad de código. Por ejemplo, Bubble Sort tiene la misma complejidad teórica, pero en la práctica es mucho menos eficiente. Esto ocurre porque Insertion Sort detiene sus comparaciones inmediatamente en cuanto encuentra el lugar correcto para el elemento, mientras que un Bubble Sort continúa haciendo comparaciones e intercambios innecesarios por todo el arreglo.
-Aunque para esta cantidad de archivos la diferencia sea imperceptible, si ambos requieren el mismo esfuerzo de programación, prefiero usar el más óptimo. En cuanto a otros algoritmos como Merge Sort o Quick Sort, me parece que su complejidad de implementación es excesiva para un organizador sencillo, ya que la ganancia en velocidad sería mínima. 
+El programa debe ordenar una lista de canciones (mi biblioteca tiene aproximadamente 1100, pero el programa debería funcionar bien con bibliotecas mucho más grandes) por cinco criterios distintos: título, artista, álbum, año y pista. La decisión se basa en comparar la complejidad temporal de los algoritmos candidatos.
+
+| Algoritmo | Mejor caso | Caso promedio | Peor caso | Espacio extra | Estable |
+|---|---|---|---|---|---|
+| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) | Sí |
+| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Sí |
+| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No |
+| Heap Sort | O(n log n) | O(n log n) | O(n log n) | O(1) | No |
+| **Merge Sort** | **O(n log n)** | **O(n log n)** | **O(n log n)** | **O(n)** | **Sí** |
+
+**Descarto Bubble Sort e Insertion Sort** por indicaciones del profesor y porque su complejidad promedio y de peor caso es O(n²).
+
+**Descarto Quick Sort** porque su peor caso es O(n²).
+
+**Descarto Heap Sort** porque, aunque también garantiza O(n log n) y usa O(1) de espacio extra, no es estable y en la práctica accede a memoria de forma menos ordenada.
+
+**Elijo Merge Sort** por estas razones:
+
+1. **O(n log n) garantizado en todos los casos.** El tiempo no depende de cómo venga ordenada la biblioteca.
+2. **Es estable.** Si dos canciones empatan en el criterio (por ejemplo, dos canciones del mismo año), conservan el orden relativo que tenían. Esto es útil en un reproductor, donde se espera que las canciones del mismo álbum o artista no se reacomoden al azar.
 
 *Nota: Esta solución se encuentra implementada en la función `insertionSort()` dentro del archivo `sorter.cpp`.*
 
@@ -68,20 +86,21 @@ Aunque para esta cantidad de archivos la diferencia sea imperceptible, si ambos 
 
 **Peor caso**
 
-Para que el ciclo interno (while) corra el máximo número de veces posible, las canciones tendrían que venir en orden inverso al que deseas organizarlas (por ejemplo, si quieres ordenar de la 'A' a la 'Z', las canciones deberian de estar de la 'Z' a la 'A'). Cada vez que el algoritmo evalúa una nueva canción, esta resulta ser la "menor" de todas las analizadas hasta ese momento, obligándola a recorrer todo el arreglo. En la posición `i`, el ciclo interno corre hasta `i` veces; sumando desde `i=1` hasta `n-1` se obtiene la progresión matemática $1+2+...+(n-1)$, la cual se resuelve como $n(n-1)/2$. 
-Por lo tanto, el peor caso es **O(n²)**.
+La mezcla siempre recorre todos los elementos del rango, sin importar el orden inicial, y la profundidad de la recursión siempre es log₂(n). En el peor caso el número de comparaciones es a lo sumo n·log₂(n) − n + 1.
+Por lo tanto, el peor caso es **O(n log n)**.
 
 **Mejor caso**
 
-El mejor caso seria que literalmente la lista de canciones ya estuviera ordenada. En esta situación, el algoritmo solo requeriría de realizar una comparación por cada canción (una comparación por cada posición `i`), dándose cuenta de que ya es mayor que la anterior sin entrar nunca al cuerpo del ciclo `while`. Esto suma un total de $n-1$ comparaciones. 
-Por lo tanto, el mejor caso es **O(n)**.
+Aunque la lista ya esté ordenada, el algoritmo igual divide hasta el caso base y vuelve a mezclar en cada nivel (copiando los n elementos por nivel). Lo único que mejora es el número de comparaciones (alrededor de la mitad), pero el trabajo total sigue creciendo como n log n.
+Por lo tanto, el mejor caso también es **Ω(n log n)**, es decir, Θ(n log n).
 
 **Caso promedio**
 
-En una lista desordenada al azar, lo más normal es que una canción no tenga que retroceder hasta el principio (peor caso), ni que ya este completamente ordenada (mejor caso). En promedio, solo tendrá que retroceder la mitad del camino; es decir, el algoritmo tendría que hacer en total la mitad del trabajo que haría en el peor de los casos. Sin embargo, en análisis asintótico, "la mitad de un esfuerzo al cuadrado" sigue siendo un esfuerzo al cuadrado. 
-Por lo tanto, el caso promedio también es **O(n²)**.
+Como la estructura de la recursión y el trabajo por nivel no dependen del orden de los datos, el caso promedio queda entre el mejor y el peor caso, que son ambos n log n.
+Por lo tanto, el caso promedio es **Θ(n log n)**.
 
 **Espacio**
 
-El algoritmo implementado en `insertionSort()` no reserva ningún vector ni estructura nueva del tamaño de canciones. Simplemente utiliza variables temporales para realizar los intercambios dentro del mismo vector original. Esto implica que la cantidad de memoria extra utilizada es fija y no crece sin importar si tienes 10 o 10,000 canciones. 
-Por lo tanto, el espacio adicional es **O(1)**.
+`mergeSort()` reserva un vector auxiliar `aux` de tamaño n una sola vez (no uno nuevo en cada llamada recursiva), lo que da O(n). Además, la recursión tiene profundidad log₂(n), lo que añade O(log n) de pila. El total es O(n) + O(log n).
+Por lo tanto, el espacio adicional es **O(n)**.
+
