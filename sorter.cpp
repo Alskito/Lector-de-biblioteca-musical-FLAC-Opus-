@@ -1,13 +1,79 @@
 #include "sorter.hpp"
-#include <algorithm>
+#include <cctype>
+#include <string>
+#include <utility>
 
 namespace {
-std::string aMinusculas(const std::string& s) {
-    std::string r = s;
-    std::transform(r.begin(), r.end(), r.begin(),
-                   [](unsigned char c) { return std::tolower(c); });
-    return r;
+
+using Comparador = std::function<bool(const Song&, const Song&)>;
+
+std::string aMinusculas(const std::string& texto) {
+    std::string resultado = texto;
+ 
+    for (char& letra : resultado) {
+        letra = static_cast<char>(std::tolower(static_cast<unsigned char>(letra)));
     }
+ 
+    return resultado;
+}
+ 
+void mezclar(std::vector<Song>& canciones,
+             std::vector<Song>& auxiliar,
+             std::size_t inicio,
+             std::size_t medio,
+             std::size_t fin,
+             const Comparador& esMenor) {
+ 
+    std::size_t izquierda = inicio;   
+    std::size_t derecha   = medio;    
+    std::size_t destino   = inicio;  
+ 
+    
+    while (izquierda < medio && derecha < fin) {
+        if (esMenor(canciones[derecha], canciones[izquierda])) {
+            auxiliar[destino] = std::move(canciones[derecha]);
+            derecha++;
+        } else {
+            auxiliar[destino] = std::move(canciones[izquierda]);
+            izquierda++;
+        }
+        destino++;
+    }
+ 
+    while (izquierda < medio) {
+        auxiliar[destino] = std::move(canciones[izquierda]);
+        izquierda++;
+        destino++;
+    }
+ 
+    while (derecha < fin) {
+        auxiliar[destino] = std::move(canciones[derecha]);
+        derecha++;
+        destino++;
+    }
+ 
+    for (std::size_t i = inicio; i < fin; i++) {
+        canciones[i] = std::move(auxiliar[i]);
+    }
+}
+ 
+void ordenarRango(std::vector<Song>& canciones,
+                  std::vector<Song>& auxiliar,
+                  std::size_t inicio,
+                  std::size_t fin,
+                  const Comparador& esMenor) {
+ 
+    if (fin - inicio < 2) {
+        return;
+    }
+ 
+    std::size_t medio = inicio + (fin - inicio) / 2;
+ 
+    ordenarRango(canciones, auxiliar, inicio, medio, esMenor);  
+    ordenarRango(canciones, auxiliar, medio, fin, esMenor);    
+    mezclar(canciones, auxiliar, inicio, medio, fin, esMenor);  
+}
+ 
 }
 
 std::function<bool(const Song&, const Song&)> comparadorPara(CriterioOrden criterio) {
@@ -26,14 +92,9 @@ std::function<bool(const Song&, const Song&)> comparadorPara(CriterioOrden crite
     }
 }
  
-void insertionSort(std::vector<Song>& canciones,
-     const std::function<bool(const Song&, const Song&)>& comparador) {
-    for (std::size_t i = 1; i < canciones.size(); ++i) {
-        for (long j = static_cast<long>(i);
-             j > 0 && comparador(canciones[j], canciones[j - 1]);
-             --j) {
-            std::swap(canciones[j], canciones[j - 1]);
-        }
-    }
+void mergeSort(std::vector<Song>& canciones, const Comparador& comparador) {
+    std::vector<Song> auxiliar(canciones.size());
+ 
+    ordenarRango(canciones, auxiliar, 0, canciones.size(), comparador);
 }
  
