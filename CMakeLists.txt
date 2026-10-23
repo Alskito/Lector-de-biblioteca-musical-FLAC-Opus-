@@ -15,3 +15,4 @@ add_executable(lector
 target_include_directories(lector PRIVATE ${TAGLIB_INCLUDE_DIRS})
 target_link_libraries(lector PRIVATE ${TAGLIB_LIBRARIES})
 target_compile_options(lector PRIVATE ${TAGLIB_CFLAGS_OTHER})
+target_link_directories(lector PRIVATE ${TAGLIB_LIBRARY_DIRS})
