@@ -9,7 +9,7 @@ En este avance el programa:
 3. Ordena el vector con Merge Sort y lo imprime.
 4. Copia las canciones ordenadas a una lista doblemente ligada (`DList`) que funciona como cola de reproducción.
 
-Todavía no suena el audio, solo se navega por la cola y falta la interfaz(me va a matar hacerla).
+Todavía no suena el audio, solo se navega por la cola y falta la interfaz grafica(me va a matar hacerla).
 
 
 ## Cómo usar el programa
@@ -100,7 +100,7 @@ Uso dos estructuras, porque la biblioteca y la cola necesitan cosas distintas.
 
 El vector mueve elementos para agregar o quitar en medio, y la lista simple no puede ir hacia atrás sin recorrer desde el inicio. La lista doble lo hace todo en O(1) porque cada nodo conoce al anterior y al siguiente. Con 1100 canciones la diferencia en tiempo real es poca, pero esta lista hace justo estas operaciones en tiempo constante aunque la biblioteca crezca.
 
-**Cómo la uso bien:** la cola se arma con el vector ya ordenado. El cursor siempre apunta a una canción válida (en los extremos no se mueve, y si quitas la última regresa a la anterior). `DList` libera su memoria en el destructor.
+**Cómo la uso:** la cola se arma con el vector ya ordenado. El cursor siempre apunta a una canción válida (en los extremos no se mueve, y si quitas la última regresa a la anterior). `DList` libera su memoria en el destructor.
 
 ## SICT0301: Evalúa los componentes
 
@@ -112,8 +112,6 @@ Solo se usa Merge Sort. Sea n el número de canciones.
 - **Mejor caso:** aunque la lista ya esté ordenada, igual se divide y se mezcla en cada nivel. Solo se hacen menos comparaciones (cerca de la mitad). Es **Ω(n log n)**.
 - **Caso promedio:** el trabajo por nivel no depende del orden de los datos, así que queda igual que los otros dos: **Θ(n log n)**.
 - **Espacio:** `aux` es un vector de tamaño n que se crea una sola vez, más O(log n) de pila de la recursión. Es **O(n)**.
-
-*Nota: al ordenar por texto se compara en minúsculas y el costo depende del largo de la cadena. Como son textos cortos, lo tomo como constante.*
 
 ### Hace un análisis de complejidad correcto y completo de todas las estructuras de datos y cada uno de sus usos en el programa
 
