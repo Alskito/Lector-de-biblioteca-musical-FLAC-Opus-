@@ -2,99 +2,97 @@
 #include <cctype>
 #include <string>
 #include <utility>
-
+ 
 namespace {
-
-using Comparador = std::function<bool(const Song&, const Song&)>;
-
-std::string aMinusculas(const std::string& texto) {
-    std::string resultado = texto;
  
-    for (char& letra : resultado) {
-        letra = static_cast<char>(std::tolower(static_cast<unsigned char>(letra)));
+using Comparator = std::function<bool(const Song&, const Song&)>;
+ 
+std::string toLowerCase(const std::string& text) {
+    std::string result = text;
+ 
+    for (char& letter : result) {
+        letter = static_cast<char>(std::tolower(static_cast<unsigned char>(letter)));
     }
  
-    return resultado;
+    return result;
 }
  
-void mezclar(std::vector<Song>& canciones,
-             std::vector<Song>& auxiliar,
-             std::size_t inicio,
-             std::size_t medio,
-             std::size_t fin,
-             const Comparador& esMenor) {
+void mergeRanges(std::vector<Song>& songs,
+                 std::vector<Song>& aux,
+                 std::size_t start,
+                 std::size_t middle,
+                 std::size_t end,
+                 const Comparator& isLess) {
+                    
+    std::size_t left  = start;
+    std::size_t right = middle;
+    std::size_t dest  = start;
  
-    std::size_t izquierda = inicio;   
-    std::size_t derecha   = medio;    
-    std::size_t destino   = inicio;  
- 
-    
-    while (izquierda < medio && derecha < fin) {
-        if (esMenor(canciones[derecha], canciones[izquierda])) {
-            auxiliar[destino] = std::move(canciones[derecha]);
-            derecha++;
+    while (left < middle && right < end) {
+        if (isLess(songs[right], songs[left])) {
+            aux[dest] = std::move(songs[right]);
+            right++;
         } else {
-            auxiliar[destino] = std::move(canciones[izquierda]);
-            izquierda++;
+            aux[dest] = std::move(songs[left]);
+            left++;
         }
-        destino++;
+        dest++;
     }
  
-    while (izquierda < medio) {
-        auxiliar[destino] = std::move(canciones[izquierda]);
-        izquierda++;
-        destino++;
+    while (left < middle) {
+        aux[dest] = std::move(songs[left]);
+        left++;
+        dest++;
     }
  
-    while (derecha < fin) {
-        auxiliar[destino] = std::move(canciones[derecha]);
-        derecha++;
-        destino++;
+    while (right < end) {
+        aux[dest] = std::move(songs[right]);
+        right++;
+        dest++;
     }
  
-    for (std::size_t i = inicio; i < fin; i++) {
-        canciones[i] = std::move(auxiliar[i]);
+    for (std::size_t pos = start; pos < end; pos++) {
+        songs[pos] = std::move(aux[pos]);
     }
 }
  
-void ordenarRango(std::vector<Song>& canciones,
-                  std::vector<Song>& auxiliar,
-                  std::size_t inicio,
-                  std::size_t fin,
-                  const Comparador& esMenor) {
+void sortRange(std::vector<Song>& songs,
+               std::vector<Song>& aux,
+               std::size_t start,
+               std::size_t end,
+               const Comparator& isLess) {
  
-    if (fin - inicio < 2) {
+    if (end - start < 2) {
         return;
     }
  
-    std::size_t medio = inicio + (fin - inicio) / 2;
+    std::size_t middle = start + (end - start) / 2;
  
-    ordenarRango(canciones, auxiliar, inicio, medio, esMenor);  
-    ordenarRango(canciones, auxiliar, medio, fin, esMenor);    
-    mezclar(canciones, auxiliar, inicio, medio, fin, esMenor);  
+    sortRange(songs, aux, start, middle, isLess);
+    sortRange(songs, aux, middle, end, isLess);
+    mergeRanges(songs, aux, start, middle, end, isLess);
 }
  
 }
-
-std::function<bool(const Song&, const Song&)> comparadorPara(CriterioOrden criterio) {
-    switch (criterio) {
-        case CriterioOrden::Titulo:
-            return [](const Song& a, const Song& b) { return aMinusculas(a.title) < aMinusculas(b.title); };
-        case CriterioOrden::Artista:
-            return [](const Song& a, const Song& b) { return aMinusculas(a.artist) < aMinusculas(b.artist); };
-        case CriterioOrden::Album:
-            return [](const Song& a, const Song& b) { return aMinusculas(a.album) < aMinusculas(b.album); };
-        case CriterioOrden::Anio:
-            return [](const Song& a, const Song& b) { return a.year < b.year; };
-        case CriterioOrden::Pista:
+ 
+std::function<bool(const Song&, const Song&)> comparatorFor(SortCriterion criterion) {
+    switch (criterion) {
+        case SortCriterion::Title:
+            return [](const Song& left, const Song& right) { return toLowerCase(left.title) < toLowerCase(right.title); };
+        case SortCriterion::Artist:
+            return [](const Song& left, const Song& right) { return toLowerCase(left.artist) < toLowerCase(right.artist); };
+        case SortCriterion::Album:
+            return [](const Song& left, const Song& right) { return toLowerCase(left.album) < toLowerCase(right.album); };
+        case SortCriterion::Year:
+            return [](const Song& left, const Song& right) { return left.year < right.year; };
+        case SortCriterion::Track:
         default:
-            return [](const Song& a, const Song& b) { return a.track < b.track; };
+            return [](const Song& left, const Song& right) { return left.track < right.track; };
     }
 }
  
-void mergeSort(std::vector<Song>& canciones, const Comparador& comparador) {
-    std::vector<Song> auxiliar(canciones.size());
+void mergeSort(std::vector<Song>& songs, const Comparator& comparator) {
+    std::vector<Song> aux(songs.size());
  
-    ordenarRango(canciones, auxiliar, 0, canciones.size(), comparador);
+    sortRange(songs, aux, 0, songs.size(), comparator);
 }
- 
