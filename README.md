@@ -9,14 +9,13 @@ En este avance el programa:
 3. Ordena el vector con Merge Sort y lo imprime.
 4. Copia las canciones ordenadas a una lista doblemente ligada (`DList`) que funciona como cola de reproducción.
 
-Todavía no suena el audio, solo se navega por la cola y falta la interfaz grafica(me va a matar hacerla).
-
+Todavía no suena el audio: solo se navega por la cola. Falta la interfaz gráfica.
 
 ## Cómo usar el programa
 
 ### Requisitos
 
-Un compilador de C++ con soporte para C++17 y la librería TagLib.
+Un compilador de C++ con soporte para C++17 y la librería TagLib **1.10 o superior** (se usa `lengthInSeconds()`).
 
 ### Instalar dependencias
 
@@ -47,6 +46,14 @@ Deja en la misma carpeta: `main.cpp`, `metadata.cpp/.hpp`, `sorter.cpp/.hpp`, `s
 
 `g++ -std=c++17 -IC:\msys64\mingw64\include main.cpp metadata.cpp sorter.cpp -o lector.exe -LC:\msys64\mingw64\lib -ltag`
 
+**Con CMake** (alternativa, requiere `pkg-config`; el `CMakeLists.txt` va en la misma carpeta):
+
+`cmake -B build`
+
+`cmake --build build`
+
+El ejecutable queda en `build/lector`.
+
 ### Ejecutar
 
 `./lector "<ruta_a_tu_carpeta_de_musica>" [1-5]` (en Windows, `lector.exe`)
@@ -54,6 +61,18 @@ Deja en la misma carpeta: `main.cpp`, `metadata.cpp/.hpp`, `sorter.cpp/.hpp`, `s
 El segundo argumento es opcional. Si lo omites, el programa te muestra un menú para elegir cómo ordenar (1 título, 2 artista, 3 álbum, 4 año, 5 pista).
 
 Después de imprimir la biblioteca se abre la cola, que muestra la canción actual y en qué lugar va (por ejemplo `2 of 5, 3 left`). Comandos: `n` siguiente, `p` anterior, `r` quitar la canción actual, `e` salir.
+
+### Limitaciones conocidas
+
+- La carpeta se recorre sin manejo de errores: si la ruta no existe o una subcarpeta no tiene permisos, el programa termina con una excepción.
+- El orden alfabético compara bytes en minúsculas con `std::tolower`, así que las letras con acento ("Ángel", "Émile") quedan después de la "z".
+- Las canciones sin año o sin número de pista guardan 0 y salen al principio al ordenar por esos criterios.
+- Se ordena por un solo criterio a la vez.
+- `PlaybackQueue` ya tiene `addAfter` y `addBefore`, pero el menú todavía no tiene comandos para usarlos.
+
+### Créditos
+
+`dlist.h` y `exception.h` vienen del material visto en clase (`exception.h` es de pperezm).
 
 ## SICT0302: Toma decisiones
 
@@ -78,7 +97,7 @@ El programa debe ordenar una lista de canciones (mi biblioteca tiene aproximadam
 **Elijo Merge Sort** por dos razones:
 
 1. **Siempre es O(n log n).** No importa cómo venga ordenada la biblioteca.
-2. **Es estable.** Si dos canciones empatan (por ejemplo, del mismo año), se quedan en el orden que tenían. Así las canciones de un mismo álbum o artista no se revuelven.
+2. **Es estable.** Si dos canciones empatan (por ejemplo, del mismo año), se quedan en el orden en que venían, que es el orden en que `scanFolder` las encontró en la carpeta. Eso hace el resultado predecible y permitiría encadenar ordenamientos (por ejemplo, ordenar primero por pista y luego por álbum deja las pistas de cada álbum en orden). Hoy el programa ordena por un solo criterio, así que la estabilidad por sí sola no garantiza que las pistas de un álbum salgan en orden cuando se ordena por álbum.
 
 *Nota: Merge Sort está en la función `mergeSort()` del archivo `sorter.cpp`. Los cinco criterios usan el mismo algoritmo; solo cambia la función de comparación (`comparatorFor`).*
 
@@ -86,9 +105,9 @@ El programa debe ordenar una lista de canciones (mi biblioteca tiene aproximadam
 
 Uso dos estructuras, porque la biblioteca y la cola necesitan cosas distintas.
 
-**Biblioteca: `std::vector<Song>`.** Se llena una vez, se ordena y se imprime. Para eso hay que agregar al final y entrar a cualquier posición en O(1), que es lo que necesita Merge Sort. Una lista no sirve aquí: entrar a una posición cuesta O(n) y ordenar subiría a O(n² log n).
+**Biblioteca: `std::vector<Song>`.** Se llena una vez, se ordena y se imprime. Para eso hay que agregar al final y entrar a cualquier posición en O(1), que es lo que necesita mi implementación de Merge Sort (trabaja con índices). Con una lista ligada cada acceso por posición costaría O(n) y ordenar subiría a O(n² log n). Merge Sort sí se puede hacer sobre una lista, pero habría que reescribirlo con punteros; además, el vector guarda los datos juntos en memoria y se recorre más rápido.
 
-**Cola de reproducción: lista doblemente ligada (`DList<Song>`).** La cola necesita ir a la siguiente canción, regresar a la anterior, agregar una junto a la actual y quitar la actual:
+**Cola de reproducción: lista doblemente ligada (`DList<Song>`).** La cola necesita ir a la siguiente canción, regresar a la anterior y quitar la actual; `PlaybackQueue` también permite agregar una canción junto a la actual (todavía sin comando en el menú):
 
 | Operación | Vector | Lista simple | Lista doble |
 |---|---|---|---|
@@ -112,6 +131,8 @@ Solo se usa Merge Sort. Sea n el número de canciones.
 - **Mejor caso:** aunque la lista ya esté ordenada, igual se divide y se mezcla en cada nivel. Solo se hacen menos comparaciones (cerca de la mitad). Es **Ω(n log n)**.
 - **Caso promedio:** el trabajo por nivel no depende del orden de los datos, así que queda igual que los otros dos: **Θ(n log n)**.
 - **Espacio:** `aux` es un vector de tamaño n que se crea una sola vez, más O(log n) de pila de la recursión. Es **O(n)**.
+
+*Nota: al ordenar por texto se compara en minúsculas y el costo de cada comparación depende del largo de la cadena. Como son textos cortos, lo tomo como constante.*
 
 ### Hace un análisis de complejidad correcto y completo de todas las estructuras de datos y cada uno de sus usos en el programa
 
