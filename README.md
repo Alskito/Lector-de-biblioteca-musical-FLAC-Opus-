@@ -164,7 +164,7 @@ Cada nodo guarda el valor y dos enlaces (al anterior y al siguiente). El espacio
 
 ### Implementa mecanismos para consultar información de las estructuras correctos
 
-- **Biblioteca:** el usuario elige cómo ordenar (título, artista, álbum, año o pista) y `printSongs` la muestra en ese orden. Una canción por posición se consulta con `songs[i]`, en O(1).
+- **Biblioteca:** el usuario elige cómo ordenar (título, artista, álbum, año o pista) y `printSongs` la muestra en ese orden. 
 - **Cola (`PlaybackQueue`), todo en O(1):** `current()` da la canción actual, `position()` en qué lugar va, `length()` cuántas hay, `empty()` si está vacía, y `next()` / `previous()` mueven el cursor (regresan `false` si ya estaba en un extremo). Con esto el programa muestra en cada paso la canción actual, su posición y cuántas quedan.
 - `DList` también tiene `get`, `getFirst`, `getLast`, `contains`, `indexOf` y `lastIndexOf`, pero no las uso.
 
