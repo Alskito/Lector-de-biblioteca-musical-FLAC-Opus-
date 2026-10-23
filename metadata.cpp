@@ -30,7 +30,7 @@ Song readMetadata(const fs::path& file) {
 #endif
  
     if (fileRef.isNull() || !fileRef.tag()) {
-        song.title = file.stem().string(); // fallback if there are no tags
+        song.title = file.stem().string(); 
         return song;
     }
  
