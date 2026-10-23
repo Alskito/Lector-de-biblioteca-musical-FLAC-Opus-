@@ -68,7 +68,7 @@ private:
 	DLink<T> *tail;
 	int 	 size;
  
-	// Private helpers
+	
 	DLink<T>* linkAt(int) const;
 	T         removeLink(DLink<T>*);
 	void      copy(const DList<T>&);
