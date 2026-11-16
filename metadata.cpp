@@ -55,7 +55,9 @@ std::vector<Song> scanFolder(const fs::path& folder) {
     std::vector<Song> songs;
     for (const auto& entry : fs::recursive_directory_iterator(folder)) {
         if (entry.is_regular_file() && isSupportedFormat(entry.path())) {
-            songs.push_back(readMetadata(entry.path()));
+            Song song = readMetadata(entry.path());
+            song.path = entry.path().lexically_relative(folder).generic_u8string();
+            songs.push_back(song);
         }
     }
     return songs;
